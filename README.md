@@ -13,14 +13,17 @@ ScholarSync is a simple student planner that helps users stay organized by track
 -Python / HTML / CSS
 
 ## Project Roadmap
--[] Find and evaluate related repository 
--[] Clone and run 
+-[x] Find and evaluate related repository 
+-[x] Clone and run 
 -[] Modify design for scholarSync
 -[] Add assignment tracker
 -[] Add to-do list
 -[] Add notes feature
--[] Add stud time
+-[] Add study time
 -[] Test application
 
 ## Related Repository
 This Project is inspired by an existing GitHub repository used as a refrence for functionality and structure.
+
+## Testing Related Repository
+I cloned and ran the Homework Tracker applictation using python. After installing the required package (ICS), The application launched successfully. I tested features by adding, updating, and deleting assignments, as well as exploring the calendar view. This helped me understand how to structure my scholar project.
