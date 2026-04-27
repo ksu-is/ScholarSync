@@ -15,8 +15,8 @@ ScholarSync is a simple student planner that helps users stay organized by track
 ## Project Roadmap
 -[x] Find and evaluate related repository 
 -[x] Clone and run 
--[] Modify design for scholarSync
--[] Add assignment tracker
+-[x] Modify design for scholarSync
+-[x] Add assignment tracker
 -[] Add to-do list
 -[] Add notes feature
 -[] Add study time
