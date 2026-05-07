@@ -52,6 +52,41 @@ def setup_database():
 
     conn.commit()
     conn.close()
+    
+    # MAIN APPLICATION CLASS
+class ScholarSyncApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("ScholarSync Student Planner")
+        self.root.geometry("1100x720")
+        self.root.configure(bg="#fff7fb")
+
+        self.timer_seconds = 25 * 60
+        self.timer_running = False
+
+        self.setup_styles()
+        self.setup_ui()
+        self.refresh_all()
+        self.update_timer_label()
+        self.update_status_bar()
+
+    def setup_styles(self):
+        style = ttk.Style()
+        style.theme_use("clam")
+
+        style.configure("TNotebook", background="#fff7fb", borderwidth=0)
+        style.configure("TNotebook.Tab", font=("Segoe UI", 11, "bold"), padding=[20, 10])
+        style.map("TNotebook.Tab", background=[("selected", "#b388ff")], foreground=[("selected", "white")])
+
+        style.configure("Treeview", font=("Segoe UI", 10), rowheight=28, background="white", fieldbackground="white")
+        style.configure("Treeview.Heading", font=("Segoe UI", 10, "bold"), background="#b388ff", foreground="white")
+        
+        style.configure("Cute.TButton", font=("Segoe UI", 10, "bold"), background="#ff8fab", foreground="white", padding=6)
+        style.map("Cute.TButton", background=[("active", "#ff6f91")])
+
+        style.configure("Title.TLabel", font=("Segoe UI", 28, "bold"), background="#ff8fab", foreground="white")
+        style.configure("SubTitle.TLabel", font=("Segoe UI", 11), background="#ff8fab", foreground="white")
+        
       
     # MAIN LAYOUT
     
@@ -308,15 +343,6 @@ def setup_database():
 
         for row in rows:
             self.task_listbox.insert(tk.END, f"{row[0]}. {row[1]}")
-            
-            conn = connect_db()
-        cursor = conn.cursor()
-        cursor.execute("SELECT id, task FROM tasks")
-        rows = cursor.fetchall()
-        conn.close()
-
-        for row in rows:
-            self.task_listbox.insert(tk.END, f"{row[0]}. {row[1]}")
 
     def delete_task(self):
         selected = self.task_listbox.curselection()
@@ -458,6 +484,16 @@ def setup_database():
         current_time = datetime.now().strftime("%H:%M:%S")
         self.status_bar.config(text=f"  Today: {today}  |  Time: {current_time}  |  Database: {DB_NAME}")
         self.root.after(1000, self.update_status_bar)
+        
+        # PROGRAM START
+# This runs the app.
+# setup_database() creates the database before the window opens.
+
+if __name__ == "__main__":
+    setup_database()
+    root = tk.Tk()
+    app = ScholarSyncApp(root)
+    root.mainloop()
         
         
 
