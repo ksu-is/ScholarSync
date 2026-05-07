@@ -376,6 +376,90 @@ def setup_database():
         for row in rows:
             preview = row[1][:75] + "..." if len(row[1]) > 75 else row[1]
             self.notes_listbox.insert(tk.END, f"{row[0]} - {preview}")
+            
+              # STUDY TIMER TAB
+    # This is a simple Pomodoro-style timer to help students focus.
+    
+    def build_timer_tab(self):
+        timer_card = tk.Frame(self.timer_frame, bg="white", padx=40, pady=40, highlightbackground="#ffd6e0", highlightthickness=2)
+        timer_card.pack(expand=True)
+
+        tk.Label(timer_card, text="Focus Timer 🌸", font=("Segoe UI", 24, "bold"), bg="white", fg="#4a3f55").pack(pady=10)
+
+        self.timer_label = tk.Label(timer_card, text="25:00", font=("Segoe UI", 58, "bold"), bg="white", fg="#ff8fab")
+        self.timer_label.pack(pady=20)
+
+        button_frame = tk.Frame(timer_card, bg="white")
+        button_frame.pack()
+
+        ttk.Button(button_frame, text="Start", style="Cute.TButton", command=self.start_timer).grid(row=0, column=0, padx=10)
+        ttk.Button(button_frame, text="Pause", style="Cute.TButton", command=self.pause_timer).grid(row=0, column=1, padx=10)
+        ttk.Button(button_frame, text="Reset", style="Cute.TButton", command=self.reset_timer).grid(row=0, column=2, padx=10)
+        
+    def update_timer_label(self):
+        minutes = self.timer_seconds // 60
+        seconds = self.timer_seconds % 60
+        self.timer_label.config(text=f"{minutes:02d}:{seconds:02d}")
+
+    def start_timer(self):
+        if not self.timer_running:
+            self.timer_running = True
+            self.countdown()
+
+    def pause_timer(self):
+        self.timer_running = False
+
+    def reset_timer(self):
+        self.timer_running = False
+        self.timer_seconds = 25 * 60
+        self.update_timer_label()
+
+    def countdown(self):
+        if self.timer_running and self.timer_seconds > 0:
+            self.timer_seconds -= 1
+            self.update_timer_label()
+            self.root.after(1000, self.countdown)
+        elif self.timer_seconds == 0:
+            self.timer_running = False
+            messagebox.showinfo("Timer Done", "Great job! Take a short break.")
+            self.reset_timer()
+            
+             # REFRESH AND STATUS METHODS
+    # These update the tables, dashboard numbers, and bottom status bar.
+
+    def refresh_all(self):
+        self.load_assignments()
+        self.load_tasks()
+        self.load_notes()
+        self.update_dashboard_counts()
+        self.update_status_bar()
+
+    def update_dashboard_counts(self):
+        conn = connect_db()
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT COUNT(*) FROM assignments")
+        assignment_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM tasks")
+        task_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM notes")
+        note_count = cursor.fetchone()[0]
+
+        conn.close()
+
+        self.assignment_count_label.config(text=str(assignment_count))
+        self.task_count_label.config(text=str(task_count))
+        self.note_count_label.config(text=str(note_count))
+
+    def update_status_bar(self):
+        today = datetime.now().strftime("%Y-%m-%d")
+        current_time = datetime.now().strftime("%H:%M:%S")
+        self.status_bar.config(text=f"  Today: {today}  |  Time: {current_time}  |  Database: {DB_NAME}")
+        self.root.after(1000, self.update_status_bar)
+        
+        
 
         
         
