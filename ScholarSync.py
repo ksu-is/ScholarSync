@@ -265,6 +265,117 @@ def setup_database():
             conn.commit()
             conn.close()
             self.refresh_all()
+            
+              # TO-DO TAB
+
+    def build_todo_tab(self):
+        frame = tk.LabelFrame(self.todo_frame, text="Daily To-Do List", font=("Segoe UI", 11, "bold"), bg="#fff7fb", fg="#4a3f55", padx=15, pady=15)
+        frame.pack(fill="x", padx=10, pady=10)
+
+        self.task_entry = tk.Entry(frame, width=70, font=("Segoe UI", 11))
+        self.task_entry.pack(side="left", padx=5)
+
+        ttk.Button(frame, text="Add Task", style="Cute.TButton", command=self.add_task).pack(side="left", padx=5)
+        ttk.Button(frame, text="Delete Task", style="Cute.TButton", command=self.delete_task).pack(side="left", padx=5)
+
+        self.task_listbox = tk.Listbox(self.todo_frame, font=("Segoe UI", 12), height=20, bg="white", fg="#4a3f55", selectbackground="#b388ff")
+        self.task_listbox.pack(fill="both", expand=True, padx=10, pady=10)
+
+    def add_task(self):
+        task = self.task_entry.get().strip()
+        if not task:
+            messagebox.showerror("Missing Task", "Please type a task.")
+            return
+        
+        
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO tasks (task, completed) VALUES (?, ?)", (task, 0))
+        conn.commit()
+        conn.close()
+
+        self.task_entry.delete(0, tk.END)
+        self.refresh_all()
+
+    def load_tasks(self):
+        self.task_listbox.delete(0, tk.END)
+
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, task FROM tasks")
+        rows = cursor.fetchall()
+        conn.close()
+
+        for row in rows:
+            self.task_listbox.insert(tk.END, f"{row[0]}. {row[1]}")
+            
+            conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, task FROM tasks")
+        rows = cursor.fetchall()
+        conn.close()
+
+        for row in rows:
+            self.task_listbox.insert(tk.END, f"{row[0]}. {row[1]}")
+
+    def delete_task(self):
+        selected = self.task_listbox.curselection()
+        if not selected:
+            messagebox.showwarning("No Selection", "Please select a task first.")
+            return
+
+        task_text = self.task_listbox.get(selected[0])
+        task_id = task_text.split(".")[0]
+
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM tasks WHERE id = ?", (task_id,))
+        conn.commit()
+        conn.close()
+        self.refresh_all()
+        
+          # NOTES TAB
+   
+    def build_notes_tab(self):
+        note_frame = tk.LabelFrame(self.notes_frame, text="Quick Notes", font=("Segoe UI", 11, "bold"), bg="#fff7fb", fg="#4a3f55", padx=15, pady=15)
+        note_frame.pack(fill="x", padx=10, pady=10)
+
+        self.notes_text = tk.Text(note_frame, height=7, font=("Segoe UI", 11), wrap="word", bg="white", fg="#4a3f55")
+        self.notes_text.pack(fill="x", pady=5)
+
+        ttk.Button(note_frame, text="Save Note", style="Cute.TButton", command=self.save_note).pack(pady=5)
+
+        self.notes_listbox = tk.Listbox(self.notes_frame, font=("Segoe UI", 11), height=15, bg="white", fg="#4a3f55", selectbackground="#b388ff")
+        self.notes_listbox.pack(fill="both", expand=True, padx=10, pady=10)
+
+    def save_note(self):
+        note = self.notes_text.get("1.0", tk.END).strip()
+        if not note:
+            messagebox.showerror("Missing Note", "Please type a note before saving.")
+            return
+
+        created_at = datetime.now().strftime("%Y-%m-%d %H:%M")
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO notes (note, created_at) VALUES (?, ?)", (note, created_at))
+        conn.commit()
+        conn.close()
+        
+        self.notes_text.delete("1.0", tk.END)
+        self.refresh_all()
+
+    def load_notes(self):
+        self.notes_listbox.delete(0, tk.END)
+
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT created_at, note FROM notes ORDER BY id DESC")
+        rows = cursor.fetchall()
+        conn.close()
+
+        for row in rows:
+            preview = row[1][:75] + "..." if len(row[1]) > 75 else row[1]
+            self.notes_listbox.insert(tk.END, f"{row[0]} - {preview}")
 
         
         
